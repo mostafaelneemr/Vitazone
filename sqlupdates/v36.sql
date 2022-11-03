@@ -1,0 +1,12 @@
+ALTER TABLE `flash_deals` CHANGE `title` `title_en` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `flash_deals` ADD `title_ar` VARCHAR(255) NULL DEFAULT NULL AFTER `title_en`;
+ALTER TABLE `flash_deals` CHANGE `slug` `slug_en` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `flash_deals` ADD `slug_ar` TEXT NULL DEFAULT NULL AFTER `slug_en`;
+ALTER TABLE `currencies` CHANGE `name` `name_en` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
+ALTER TABLE `currencies` ADD `name_ar` VARCHAR(255) NOT NULL AFTER `name_en`;
+ALTER TABLE `languages` CHANGE `name` `name_en` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
+ALTER TABLE `languages` ADD `name_ar` VARCHAR(255) NOT NULL AFTER `name_en`;
+ALTER TABLE `products` CHANGE `name` `name_en` VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, CHANGE `description` `description_en` LONGTEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL, CHANGE `slug` `slug_en` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
+ALTER TABLE `products` CHANGE `meta_title` `meta_title_en` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL, CHANGE `meta_description` `meta_description_en` LONGTEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `products` ADD `name_ar` VARCHAR(200) NOT NULL AFTER `name_en`, ADD `description_ar` LONGTEXT NULL DEFAULT NULL AFTER `name_ar`, ADD `slug_ar` MEDIUMTEXT NOT NULL AFTER `description_ar`;
+ALTER TABLE `products` ADD `meta_title_ar` MEDIUMTEXT NULL DEFAULT NULL AFTER `file_path`, ADD `meta_description_ar` LONGTEXT NULL DEFAULT NULL AFTER `meta_title_ar`;

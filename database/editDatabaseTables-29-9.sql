@@ -1,0 +1,3 @@
+ALTER TABLE `order_details` ADD `seller_status` VARCHAR(50) NULL DEFAULT NULL AFTER `quantity`;
+ALTER TABLE `seo_settings` CHANGE `updated_at` `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `links` CHANGE `updated_at` `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;

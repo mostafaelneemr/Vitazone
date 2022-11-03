@@ -1,0 +1,20 @@
+User-agent: *
+
+Disallow: /admin/
+Disallow: /terms/
+Disallow: /privacypolicy/
+Disallow: /supportpolicy/
+Disallow: /returnpolicy/
+Disallow: /users/login/
+Disallow: /track_your_order/
+Disallow: /affiliate/
+Disallow: /users/registration/
+Disallow: /shops/create/
+Disallow: /compare/
+Disallow: /password/reset/
+Disallow: /search
+
+
+Allow: /
+
+sitemap: https://vitazonei.com/sitemap/sitemap_index_ar.xml
