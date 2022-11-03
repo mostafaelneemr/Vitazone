@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <sitemap>
+        <loc>https://vitazonei.com/sitemap/pages_sitemap_en.xml</loc>
+    
+        <lastmod>2021-12-31T14:11:33+02:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>https://vitazonei.com/sitemap/blogs_sitemap_en.xml</loc>
+    
+        <lastmod>2021-12-31T14:11:33+02:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>https://vitazonei.com/sitemap/admin_products_sitemap_en.xml</loc>
+    
+        <lastmod>2021-12-31T14:11:33+02:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>https://vitazonei.com/sitemap/seller_products_sitemap_en.xml</loc>
+    
+        <lastmod>2021-12-31T14:11:33+02:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>https://vitazonei.com/sitemap/categories_sitemap_en.xml</loc>
+    
+        <lastmod>2021-12-31T14:11:33+02:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>https://vitazonei.com/sitemap/brands_sitemap_en.xml</loc>
+    
+        <lastmod>2021-12-31T14:11:33+02:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>https://vitazonei.com/sitemap/flash_deals_sitemap_en.xml</loc>
+    
+        <lastmod>2021-12-31T14:11:33+02:00</lastmod>
+    </sitemap>
+</sitemapindex>
