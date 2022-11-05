@@ -1568,7 +1568,7 @@ if (!function_exists('removePhoneZero')) {
     }
 }
 
-$email = ($order->user) ? $order->user->email : Session::get('shipping_info')['email'];
+// $email = ($order->user) ? $order->user->email : Session::get('shipping_info')['email'];
 
 if (!function_exists('payWithPaymob')) {
     function payWithPaymob($type)
@@ -1619,14 +1619,14 @@ if (!function_exists('payWithPaymob')) {
                     "apartment" => "NA", "email" => ($order->user) ? $order->user->email : Session::get('shipping_info')['email'],
                     "floor" => "NA",
                     "first_name" => ($order->user) ? $order->user->name : Session::get('shipping_info')['name'],
-                    "street" => "NA",
+                    "street" => ($order->user) ? $order->user->address : Session::get('shipping_info')['address'],
                     "building" => "NA",
-                    "phone_number" => "01153430338",
+                    "phone_number" => ($order->user) ? $order->user->phone : Session::get('shipping_info')['phone'],
                     "shipping_method" => "NA",
                     "postal_code" => "NA",
-                    "city" => "NA",
-                    "country" => "NA",
-                    "last_name" => ($order->user) ? $order->user->name : Session::get('shipping_info')['name'],
+                    "city" => "NA", ($order->user) ? $order->user->city : Session::get('shipping_info')['city'],
+                    "country" => "NA", ($order->user) ? $order->user->country : Session::get('shipping_info')['country'],
+                    "last_name" => "X",
                     "state" => "NA"
                 ],
                 "currency" => "EGP",
