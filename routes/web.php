@@ -368,4 +368,10 @@ Route::group([
 
 	//Custom page
 	Route::get('/{slug}', 'PageController@show_custom_page')->name('custom-pages.show_custom_page');
+
+	Route::get('new/new', function () {
+		return "hello msg";
+	});
 });
+
+
