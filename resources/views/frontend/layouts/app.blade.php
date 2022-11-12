@@ -58,9 +58,9 @@
 
             @if($business_setting_merge->value == 1)
                 <link rel="stylesheet" href="{{ static_asset('css/all.css') }}" type="text/css" >
-                <script src="{{ static_asset('frontend/js/vendor/jquery.min.js') }}"></script>
-                <link rel="stylesheet" href="{{ static_asset('frontend/css/font-awesome.min.css') }}" type="text/css" media="none" onload="if(media!='all')media='all'">
-                <link rel="stylesheet" href="{{ static_asset('frontend/css/line-awesome.min.css') }}" type="text/css" media="none" onload="if(media!='all')media='all'">
+                <script src="{{ asset('frontend/js/vendor/jquery.min.js') }}"></script>
+                <link rel="stylesheet" href="{{ asset('frontend/css/font-awesome.min.css') }}" type="text/css" media="none" onload="if(media!='all')media='all'">
+                <link rel="stylesheet" href="{{ asset('frontend/css/line-awesome.min.css') }}" type="text/css" media="none" onload="if(media!='all')media='all'">
             @elseif($business_setting_merge->value == 0)
                 <link rel="stylesheet" href="{{ static_asset('frontend/css/bootstrap.min.css') }}" type="text/css" media="all">
 

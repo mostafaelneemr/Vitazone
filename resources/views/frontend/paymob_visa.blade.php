@@ -54,7 +54,8 @@
             <div class="container">
                 <div class="row cols-xs-space cols-sm-space cols-md-space">
                     <div class="col-lg-8">
-                        @if (\App\UserToken::where('user_id', Auth::user()->id)->count() > 0)
+                        @if(Auth::check()) 
+                            @if (\App\UserToken::where('user_id', Auth::user()->id)->count() > 0)
                             <div class="card">
                                 <div class="card-title px-4 py-3">
                                     <h3 class="heading heading-5 strong-500">
@@ -78,6 +79,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif    
                         @endif
                         <div class="card">
                             <div class="card-title px-4 py-3">

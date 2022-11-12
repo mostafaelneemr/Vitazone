@@ -238,7 +238,6 @@ class CheckoutController extends Controller
     }
 
 
-
     public function paymob_procecced_callback(Request $request)
     {
         if ($request['type'] == 'TOKEN') {

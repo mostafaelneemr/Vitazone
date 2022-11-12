@@ -47,7 +47,6 @@ final class Versions
   'laracasts/flash' => '3.2@76c2e200498795bdbeda97b682536130316e8b97',
   'laravel/framework' => 'v7.30.4@9dd38140dc2924daa1a020a3d7a45f9ceff03df3',
   'laravel/passport' => 'v7.5.1@d63cdd672c3d65b3c35b73d0ef13a9dbfcb71c08',
-  'laravel/socialite' => 'v4.4.1@80951df0d93435b773aa00efe1fad6d5015fac75',
   'laravel/tinker' => 'v2.6.1@04ad32c1a3328081097a181875733fa51f402083',
   'laravel/ui' => 'v2.4.0@f5398544a9cd4804a42d09ce51735e37cd51ea2d',
   'laravelcollective/html' => 'v6.2.1@ae15b9c4bf918ec3a78f092b8555551dd693fde3',
@@ -57,7 +56,6 @@ final class Versions
   'league/flysystem' => '1.1.3@9be3b16c877d477357c015cec057548cf9b2a14a',
   'league/glide' => '1.7.0@ae5e26700573cb678919d28e425a8b87bc71c546',
   'league/mime-type-detection' => '1.7.0@3b9dff8aaf7323590c1d2e443db701eb1f9aa0d3',
-  'league/oauth1-client' => 'v1.9.0@1e7e6be2dc543bf466236fb171e5b20e1b06aee6',
   'league/oauth2-server' => '7.4.0@2eb1cf79e59d807d89c256e7ac5e2bf8bdbd4acf',
   'maatwebsite/excel' => '3.1.30@aa5d2e4d25c5c8218ea0a15103da95f5f8728953',
   'maennchen/zipstream-php' => '2.1.0@c4c5803cc1f93df3d2448478ef79394a5981cc58',
@@ -182,7 +180,7 @@ final class Versions
   'sebastian/version' => '2.0.1@99732be0ddb3361e16ad77b68ba41efc8e979019',
   'theseer/tokenizer' => '1.2.0@75a63c33a8577608444246075ea0af0d052e452a',
   'webmozart/assert' => '1.10.0@6964c76c7804814a842473e0c8fd15bab0f18e25',
-  'laravel/laravel' => 'No version set (parsed as 1.0.0)@',
+  'laravel/laravel' => 'dev-newfolder@572fee7e7130ea449e05d2ea9608111a16cb211f',
 );
 
     private function __construct()
