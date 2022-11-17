@@ -18,6 +18,7 @@ use Twilio\Version;
 /**
  * PLEASE NOTE that this class contains beta products that are subject to change. Use them with caution.
  *
+ * @property string $sid
  * @property string $accountSid
  * @property string $brandRegistrationSid
  * @property string $messagingServiceSid
@@ -30,9 +31,17 @@ use Twilio\Version;
  * @property string $campaignId
  * @property bool $isExternallyRegistered
  * @property array $rateLimits
+ * @property string $messageFlow
+ * @property string $optInMessage
+ * @property string $optOutMessage
+ * @property string $helpMessage
+ * @property string[] $optInKeywords
+ * @property string[] $optOutKeywords
+ * @property string[] $helpKeywords
  * @property \DateTime $dateCreated
  * @property \DateTime $dateUpdated
  * @property string $url
+ * @property bool $mock
  */
 class UsAppToPersonInstance extends InstanceResource {
     /**
@@ -42,12 +51,15 @@ class UsAppToPersonInstance extends InstanceResource {
      * @param mixed[] $payload The response payload
      * @param string $messagingServiceSid The SID of the Messaging Service the
      *                                    resource is associated with
+     * @param string $sid The SID that identifies the US A2P Compliance resource to
+     *                    fetch
      */
-    public function __construct(Version $version, array $payload, string $messagingServiceSid) {
+    public function __construct(Version $version, array $payload, string $messagingServiceSid, string $sid = null) {
         parent::__construct($version);
 
         // Marshaled Properties
         $this->properties = [
+            'sid' => Values::array_get($payload, 'sid'),
             'accountSid' => Values::array_get($payload, 'account_sid'),
             'brandRegistrationSid' => Values::array_get($payload, 'brand_registration_sid'),
             'messagingServiceSid' => Values::array_get($payload, 'messaging_service_sid'),
@@ -60,12 +72,61 @@ class UsAppToPersonInstance extends InstanceResource {
             'campaignId' => Values::array_get($payload, 'campaign_id'),
             'isExternallyRegistered' => Values::array_get($payload, 'is_externally_registered'),
             'rateLimits' => Values::array_get($payload, 'rate_limits'),
+            'messageFlow' => Values::array_get($payload, 'message_flow'),
+            'optInMessage' => Values::array_get($payload, 'opt_in_message'),
+            'optOutMessage' => Values::array_get($payload, 'opt_out_message'),
+            'helpMessage' => Values::array_get($payload, 'help_message'),
+            'optInKeywords' => Values::array_get($payload, 'opt_in_keywords'),
+            'optOutKeywords' => Values::array_get($payload, 'opt_out_keywords'),
+            'helpKeywords' => Values::array_get($payload, 'help_keywords'),
             'dateCreated' => Deserialize::dateTime(Values::array_get($payload, 'date_created')),
             'dateUpdated' => Deserialize::dateTime(Values::array_get($payload, 'date_updated')),
             'url' => Values::array_get($payload, 'url'),
+            'mock' => Values::array_get($payload, 'mock'),
         ];
 
-        $this->solution = ['messagingServiceSid' => $messagingServiceSid, ];
+        $this->solution = [
+            'messagingServiceSid' => $messagingServiceSid,
+            'sid' => $sid ?: $this->properties['sid'],
+        ];
+    }
+
+    /**
+     * Generate an instance context for the instance, the context is capable of
+     * performing various actions.  All instance actions are proxied to the context
+     *
+     * @return UsAppToPersonContext Context for this UsAppToPersonInstance
+     */
+    protected function proxy(): UsAppToPersonContext {
+        if (!$this->context) {
+            $this->context = new UsAppToPersonContext(
+                $this->version,
+                $this->solution['messagingServiceSid'],
+                $this->solution['sid']
+            );
+        }
+
+        return $this->context;
+    }
+
+    /**
+     * Delete the UsAppToPersonInstance
+     *
+     * @return bool True if delete succeeds, false otherwise
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function delete(): bool {
+        return $this->proxy()->delete();
+    }
+
+    /**
+     * Fetch the UsAppToPersonInstance
+     *
+     * @return UsAppToPersonInstance Fetched UsAppToPersonInstance
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function fetch(): UsAppToPersonInstance {
+        return $this->proxy()->fetch();
     }
 
     /**
@@ -94,6 +155,10 @@ class UsAppToPersonInstance extends InstanceResource {
      * @return string Machine friendly representation
      */
     public function __toString(): string {
-        return '[Twilio.Messaging.V1.UsAppToPersonInstance]';
+        $context = [];
+        foreach ($this->solution as $key => $value) {
+            $context[] = "$key=$value";
+        }
+        return '[Twilio.Messaging.V1.UsAppToPersonInstance ' . \implode(' ', $context) . ']';
     }
 }

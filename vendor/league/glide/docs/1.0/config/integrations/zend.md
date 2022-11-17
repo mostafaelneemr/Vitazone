@@ -10,7 +10,7 @@ If your application uses the [Zend Diactoros](https://github.com/zendframework/z
 ## Installation
 
 ~~~ bash
-composer require league/glide-zend
+composer require league/zend
 ~~~
 
 ## Configuration

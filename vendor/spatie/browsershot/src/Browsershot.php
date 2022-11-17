@@ -4,6 +4,9 @@ namespace Spatie\Browsershot;
 
 use Spatie\Browsershot\Exceptions\CouldNotTakeBrowsershot;
 use Spatie\Browsershot\Exceptions\ElementNotFound;
+use Spatie\Browsershot\Exceptions\FileUrlNotAllowed;
+use Spatie\Browsershot\Exceptions\HtmlIsNotAllowedToContainFile;
+use Spatie\Browsershot\Exceptions\UnsuccessfulResponse;
 use Spatie\Image\Image;
 use Spatie\Image\Manipulations;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
@@ -16,7 +19,7 @@ class Browsershot
     protected $nodeBinary = null;
     protected $npmBinary = null;
     protected $nodeModulePath = null;
-    protected $includePath = '$PATH:/usr/local/bin';
+    protected $includePath = '$PATH:/usr/local/bin:/opt/homebrew/bin';
     protected $binPath = null;
     protected $html = '';
     protected $noSandbox = false;
@@ -28,18 +31,20 @@ class Browsershot
     protected $screenshotQuality = null;
     protected $temporaryHtmlDirectory;
     protected $timeout = 60;
+    protected $transparentBackground = false;
     protected $url = '';
     protected $postParams = [];
     protected $additionalOptions = [];
     protected $temporaryOptionsDirectory;
+    protected $tempPath = '';
     protected $writeOptionsToFile = false;
     protected $chromiumArguments = [];
 
     /** @var \Spatie\Image\Manipulations */
     protected $imageManipulations;
 
-    const POLLING_REQUEST_ANIMATION_FRAME = 'raf';
-    const POLLING_MUTATION = 'mutation';
+    public const POLLING_REQUEST_ANIMATION_FRAME = 'raf';
+    public const POLLING_MUTATION = 'mutation';
 
     /**
      * @param string $url
@@ -48,7 +53,7 @@ class Browsershot
      */
     public static function url(string $url)
     {
-        return (new static)->setUrl($url);
+        return (new static())->setUrl($url);
     }
 
     /**
@@ -58,7 +63,7 @@ class Browsershot
      */
     public static function html(string $html)
     {
-        return (new static)->setHtml($html);
+        return (new static())->setHtml($html);
     }
 
     public function __construct(string $url = '', bool $deviceEmulate = false)
@@ -114,6 +119,13 @@ class Browsershot
         return $this;
     }
 
+    public function setCustomTempPath(string $tempPath)
+    {
+        $this->tempPath = $tempPath;
+
+        return $this;
+    }
+
     public function post(array $postParams = [])
     {
         $this->postParams = $postParams;
@@ -147,6 +159,13 @@ class Browsershot
     public function setExtraHttpHeaders(array $extraHTTPHeaders)
     {
         $this->setOption('extraHTTPHeaders', $extraHTTPHeaders);
+
+        return $this;
+    }
+
+    public function setExtraNavigationHttpHeaders(array $extraNavigationHTTPHeaders)
+    {
+        $this->setOption('extraNavigationHTTPHeaders', $extraNavigationHTTPHeaders);
 
         return $this;
     }
@@ -218,6 +237,10 @@ class Browsershot
 
     public function setUrl(string $url)
     {
+        if (Helpers::stringStartsWith(strtolower($url), 'file://')) {
+            throw FileUrlNotAllowed::make();
+        }
+
         $this->url = $url;
         $this->html = '';
 
@@ -233,6 +256,10 @@ class Browsershot
 
     public function setHtml(string $html)
     {
+        if (Helpers::stringContains(strtolower($html), 'file://')) {
+            throw HtmlIsNotAllowedToContainFile::make();
+        }
+
         $this->html = $html;
         $this->url = '';
 
@@ -244,6 +271,11 @@ class Browsershot
     public function clip(int $x, int $y, int $width, int $height)
     {
         return $this->setOption('clip', compact('x', 'y', 'width', 'height'));
+    }
+
+    public function preventUnsuccessfulResponse(bool $preventUnsuccessfulResponse = true)
+    {
+        return $this->setOption('preventUnsuccessfulResponse', $preventUnsuccessfulResponse);
     }
 
     public function select($selector, $index = 0)
@@ -315,6 +347,13 @@ class Browsershot
         return $this;
     }
 
+    public function transparentBackground()
+    {
+        $this->transparentBackground = true;
+
+        return $this;
+    }
+
     public function setScreenshotType(string $type, int $quality = null)
     {
         $this->screenshotType = $type;
@@ -333,12 +372,12 @@ class Browsershot
 
     public function mobile(bool $mobile = true)
     {
-        return $this->setOption('viewport.isMobile', true);
+        return $this->setOption('viewport.isMobile', $mobile);
     }
 
     public function touch(bool $touch = true)
     {
-        return $this->setOption('viewport.hasTouch', true);
+        return $this->setOption('viewport.hasTouch', $touch);
     }
 
     public function landscape(bool $landscape = true)
@@ -380,12 +419,12 @@ class Browsershot
 
     public function blockUrls($array)
     {
-        return $this->setOption('blockUrls', json_encode($array));
+        return $this->setOption('blockUrls', $array);
     }
 
     public function blockDomains($array)
     {
-        return $this->setOption('blockDomains', json_encode($array));
+        return $this->setOption('blockDomains', $array);
     }
 
     public function pages(string $pages)
@@ -459,6 +498,16 @@ class Browsershot
         return $this->setDelay($delayInMilliseconds);
     }
 
+    public function setUserDataDir(string $absolutePath)
+    {
+        return $this->addChromiumArguments(['user-data-dir' => $absolutePath]);
+    }
+
+    public function userDataDir(string $absolutePath)
+    {
+        return $this->setUserDataDir($absolutePath);
+    }
+
     public function writeOptionsToFile()
     {
         $this->writeOptionsToFile = true;
@@ -507,12 +556,12 @@ class Browsershot
 
         $command = $this->createScreenshotCommand($targetPath);
 
-        $this->callBrowser($command);
+        $output = $this->callBrowser($command);
 
         $this->cleanupTemporaryHtmlFile();
 
         if (! file_exists($targetPath)) {
-            throw CouldNotTakeBrowsershot::chromeOutputEmpty($targetPath);
+            throw CouldNotTakeBrowsershot::chromeOutputEmpty($targetPath, $output, $command);
         }
 
         if (! $this->imageManipulations->isEmpty()) {
@@ -544,7 +593,7 @@ class Browsershot
             return base64_decode($encodedImage);
         }
 
-        $temporaryDirectory = (new TemporaryDirectory())->create();
+        $temporaryDirectory = (new TemporaryDirectory($this->tempPath))->create();
 
         $this->save($temporaryDirectory->path('screenshot.png'));
 
@@ -570,13 +619,20 @@ class Browsershot
     {
         $command = $this->createPdfCommand($targetPath);
 
-        $this->callBrowser($command);
+        $output = $this->callBrowser($command);
 
         $this->cleanupTemporaryHtmlFile();
 
         if (! file_exists($targetPath)) {
-            throw CouldNotTakeBrowsershot::chromeOutputEmpty($targetPath);
+            throw CouldNotTakeBrowsershot::chromeOutputEmpty($targetPath, $output);
         }
+    }
+
+    public function base64pdf(): string
+    {
+        $command = $this->createPdfCommand();
+
+        return $this->callBrowser($command);
     }
 
     public function evaluate(string $pageFunction): string
@@ -589,6 +645,23 @@ class Browsershot
     public function triggeredRequests(): array
     {
         $command = $this->createTriggeredRequestsListCommand();
+
+        return json_decode($this->callBrowser($command), true);
+    }
+
+    /**
+     * @return array{type: string, message: string, location:array}
+     */
+    public function consoleMessages(): array
+    {
+        $command = $this->createConsoleMessagesCommand();
+
+        return json_decode($this->callBrowser($command), true);
+    }
+
+    public function failedRequests(): array
+    {
+        $command = $this->createFailedRequestsCommand();
 
         return json_decode($this->callBrowser($command), true);
     }
@@ -647,6 +720,10 @@ class Browsershot
             $command['options']['printBackground'] = true;
         }
 
+        if ($this->transparentBackground) {
+            $command['options']['omitBackground'] = true;
+        }
+
         if ($this->scale) {
             $command['options']['scale'] = $this->scale;
         }
@@ -667,9 +744,29 @@ class Browsershot
 
     public function createTriggeredRequestsListCommand(): array
     {
-        $url = $this->html ? $this->createTemporaryHtmlFile() : $this->url;
+        $url = $this->html
+            ? $this->createTemporaryHtmlFile()
+            : $this->url;
 
         return $this->createCommand($url, 'requestsList');
+    }
+
+    public function createConsoleMessagesCommand(): array
+    {
+        $url = $this->html
+            ? $this->createTemporaryHtmlFile()
+            : $this->url;
+
+        return $this->createCommand($url, 'consoleMessages');
+    }
+
+    public function createFailedRequestsCommand(): array
+    {
+        $url = $this->html
+            ? $this->createTemporaryHtmlFile()
+            : $this->url;
+
+        return $this->createCommand($url, 'failedRequests');
     }
 
     public function setRemoteInstance(string $ip = '127.0.0.1', int $port = 9222): self
@@ -701,6 +798,11 @@ class Browsershot
     public function setEnvironmentOptions(array $options = []): self
     {
         return $this->setOption('env', $options);
+    }
+
+    public function setContentUrl(string $contentUrl): self
+    {
+        return $this->html ? $this->setOption('contentUrl', $contentUrl) : $this;
     }
 
     protected function getOptionArgs(): array
@@ -737,7 +839,7 @@ class Browsershot
 
     protected function createTemporaryHtmlFile(): string
     {
-        $this->temporaryHtmlDirectory = (new TemporaryDirectory())->create();
+        $this->temporaryHtmlDirectory = (new TemporaryDirectory($this->tempPath))->create();
 
         file_put_contents($temporaryHtmlFile = $this->temporaryHtmlDirectory->path('index.html'), $this->html);
 
@@ -753,7 +855,7 @@ class Browsershot
 
     protected function createTemporaryOptionsFile(string $command): string
     {
-        $this->temporaryOptionsDirectory = (new TemporaryDirectory())->create();
+        $this->temporaryOptionsDirectory = (new TemporaryDirectory($this->tempPath))->create();
 
         file_put_contents($temporaryOptionsFile = $this->temporaryOptionsDirectory->path('command.js'), $command);
 
@@ -767,7 +869,7 @@ class Browsershot
         }
     }
 
-    protected function callBrowser(array $command)
+    protected function callBrowser(array $command): string
     {
         $fullCommand = $this->getFullCommand($command);
 
@@ -781,8 +883,13 @@ class Browsershot
 
         $this->cleanupTemporaryOptionsFile();
         $process->clearOutput();
+        $exitCode = $process->getExitCode();
 
-        if ($process->getExitCode() === 2) {
+        if ($exitCode === 3) {
+            throw new UnsuccessfulResponse($this->url, $process->getErrorOutput());
+        }
+
+        if ($exitCode === 2) {
             throw new ElementNotFound($this->additionalOptions['selector']);
         }
 
@@ -795,11 +902,15 @@ class Browsershot
 
         $binPath = $this->binPath ?: __DIR__.'/../bin/browser.js';
 
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        $optionsCommand = $this->getOptionsCommand(json_encode($command));
+
+        if ($this->isWindows()) {
             $fullCommand =
                 $nodeBinary.' '
                 .escapeshellarg($binPath).' '
-                .'"'.str_replace('"', '\"', (json_encode($command))).'"';
+                .'"'
+                .$optionsCommand
+                .'"';
 
             return escapeshellcmd($fullCommand);
         }
@@ -807,8 +918,6 @@ class Browsershot
         $setIncludePathCommand = "PATH={$this->includePath}";
 
         $setNodePathCommand = $this->getNodePathCommand($nodeBinary);
-
-        $optionsCommand = $this->getOptionsCommand(json_encode($command));
 
         return
             $setIncludePathCommand.' '
@@ -834,8 +943,11 @@ class Browsershot
     {
         if ($this->writeOptionsToFile) {
             $temporaryOptionsFile = $this->createTemporaryOptionsFile($command);
+            $command = "-f {$temporaryOptionsFile}";
+        }
 
-            return escapeshellarg("-f {$temporaryOptionsFile}");
+        if ($this->isWindows()) {
+            return str_replace('"', '\"', $command);
         }
 
         return escapeshellarg($command);
@@ -865,5 +977,17 @@ class Browsershot
         $array[array_shift($keys)] = $value;
 
         return $array;
+    }
+
+    public function initialPageNumber(int $initialPage = 1)
+    {
+        return $this
+            ->setOption('initialPageNumber', ($initialPage - 1))
+            ->pages($initialPage.'-');
+    }
+
+    private function isWindows()
+    {
+        return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
     }
 }

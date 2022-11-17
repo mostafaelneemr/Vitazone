@@ -2,20 +2,18 @@
 
 namespace League\Glide\Api;
 
-use InvalidArgumentException;
 use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class ApiTest extends TestCase
+class ApiTest extends \PHPUnit_Framework_TestCase
 {
     private $output;
 
-    public function setUp(): void
+    public function setUp()
     {
         $this->api = new Api(Mockery::mock('Intervention\Image\ImageManager'), []);
     }
 
-    public function tearDown(): void
+    public function tearDown()
     {
         Mockery::close();
     }
@@ -45,8 +43,7 @@ class ApiTest extends TestCase
 
     public function testSetInvalidManipulator()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Not a valid manipulator.');
+        $this->setExpectedException('InvalidArgumentException', 'Not a valid manipulator.');
 
         $this->api->setManipulators([new \StdClass()]);
     }

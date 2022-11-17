@@ -2,6 +2,17 @@
 
 All notable changes to `image` will be documented in this file
 
+## 2.2.0 - 2021-10-31
+
+- add avif support (#148)
+
+## 2.1.0 - 2021-07-15
+- Drop support for PHP 7
+- Make codebase more strict with type hinting
+
+## 2.0.0 - 2021-07-15
+- Bump league/glide to v2 [#134](https://github.com/spatie/image/pull/134)
+
 ## 1.10.4 - 2021-04-07
 - Allow spatie/temporary-directory v2
 

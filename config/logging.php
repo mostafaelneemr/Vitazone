@@ -87,6 +87,16 @@ return [
             'driver' => 'errorlog',
             'level' => 'debug',
         ],
+
+        'stack' => [
+            'driver' => 'stack',
+            // Add bugsnag to the stack:
+            'channels' => ['single', 'bugsnag'],
+        ],
+
+        'bugsnag' => [
+            'driver' => 'bugsnag',
+        ],
     ],
 
 ];

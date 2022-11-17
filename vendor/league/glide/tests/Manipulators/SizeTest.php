@@ -3,14 +3,13 @@
 namespace League\Glide\Manipulators;
 
 use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class SizeTest extends TestCase
+class SizeTest extends \PHPUnit_Framework_TestCase
 {
     private $manipulator;
     private $callback;
 
-    public function setUp(): void
+    public function setUp()
     {
         $this->manipulator = new Size();
         $this->callback = Mockery::on(function () {
@@ -18,7 +17,7 @@ class SizeTest extends TestCase
         });
     }
 
-    public function tearDown(): void
+    public function tearDown()
     {
         Mockery::close();
     }
@@ -83,27 +82,21 @@ class SizeTest extends TestCase
 
     public function testGetCrop()
     {
-        $this->assertSame([0, 0, 1.0], $this->manipulator->setParams(['fit' => 'crop-top-left'])->getCrop());
-        $this->assertSame([0, 100, 1.0], $this->manipulator->setParams(['fit' => 'crop-bottom-left'])->getCrop());
-        $this->assertSame([0, 50, 1.0], $this->manipulator->setParams(['fit' => 'crop-left'])->getCrop());
-        $this->assertSame([100, 0, 1.0], $this->manipulator->setParams(['fit' => 'crop-top-right'])->getCrop());
-        $this->assertSame([100, 100, 1.0], $this->manipulator->setParams(['fit' => 'crop-bottom-right'])->getCrop());
-        $this->assertSame([100, 50, 1.0], $this->manipulator->setParams(['fit' => 'crop-right'])->getCrop());
-        $this->assertSame([50, 0, 1.0], $this->manipulator->setParams(['fit' => 'crop-top'])->getCrop());
-        $this->assertSame([50, 100, 1.0], $this->manipulator->setParams(['fit' => 'crop-bottom'])->getCrop());
-        $this->assertSame([50, 50, 1.0], $this->manipulator->setParams(['fit' => 'crop-center'])->getCrop());
-        $this->assertSame([50, 50, 1.0], $this->manipulator->setParams(['fit' => 'crop'])->getCrop());
-        $this->assertSame([50, 50, 1.0], $this->manipulator->setParams(['fit' => 'crop-center'])->getCrop());
-        $this->assertSame([25, 75, 1.0], $this->manipulator->setParams(['fit' => 'crop-25-75'])->getCrop());
-        $this->assertSame([0, 100, 1.0], $this->manipulator->setParams(['fit' => 'crop-0-100'])->getCrop());
-        $this->assertSame([50, 50, 1.0], $this->manipulator->setParams(['fit' => 'crop-101-102'])->getCrop());
-        $this->assertSame([25, 75, 1.0], $this->manipulator->setParams(['fit' => 'crop-25-75-1'])->getCrop());
-        $this->assertSame([25, 75, 1.5], $this->manipulator->setParams(['fit' => 'crop-25-75-1.5'])->getCrop());
-        $this->assertSame([25, 75, 1.555], $this->manipulator->setParams(['fit' => 'crop-25-75-1.555'])->getCrop());
-        $this->assertSame([25, 75, 2.0], $this->manipulator->setParams(['fit' => 'crop-25-75-2'])->getCrop());
-        $this->assertSame([25, 75, 100.0], $this->manipulator->setParams(['fit' => 'crop-25-75-100'])->getCrop());
-        $this->assertSame([50, 50, 1.0], $this->manipulator->setParams(['fit' => 'crop-25-75-101'])->getCrop());
-        $this->assertSame([50, 50, 1.0], $this->manipulator->setParams(['fit' => 'invalid'])->getCrop());
+        $this->assertSame([0, 0], $this->manipulator->setParams(['fit' => 'crop-top-left'])->getCrop());
+        $this->assertSame([0, 100], $this->manipulator->setParams(['fit' => 'crop-bottom-left'])->getCrop());
+        $this->assertSame([0, 50], $this->manipulator->setParams(['fit' => 'crop-left'])->getCrop());
+        $this->assertSame([100, 0], $this->manipulator->setParams(['fit' => 'crop-top-right'])->getCrop());
+        $this->assertSame([100, 100], $this->manipulator->setParams(['fit' => 'crop-bottom-right'])->getCrop());
+        $this->assertSame([100, 50], $this->manipulator->setParams(['fit' => 'crop-right'])->getCrop());
+        $this->assertSame([50, 0], $this->manipulator->setParams(['fit' => 'crop-top'])->getCrop());
+        $this->assertSame([50, 100], $this->manipulator->setParams(['fit' => 'crop-bottom'])->getCrop());
+        $this->assertSame([50, 50], $this->manipulator->setParams(['fit' => 'crop-center'])->getCrop());
+        $this->assertSame([50, 50], $this->manipulator->setParams(['fit' => 'crop'])->getCrop());
+        $this->assertSame([50, 50], $this->manipulator->setParams(['fit' => 'crop-center'])->getCrop());
+        $this->assertSame([25, 75], $this->manipulator->setParams(['fit' => 'crop-25-75'])->getCrop());
+        $this->assertSame([0, 100], $this->manipulator->setParams(['fit' => 'crop-0-100'])->getCrop());
+        $this->assertSame([50, 50], $this->manipulator->setParams(['fit' => 'crop-101-102'])->getCrop());
+        $this->assertSame([50, 50], $this->manipulator->setParams(['fit' => 'invalid'])->getCrop());
     }
 
     public function testGetDpr()

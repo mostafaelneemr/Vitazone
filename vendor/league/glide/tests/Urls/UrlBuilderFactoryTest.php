@@ -2,9 +2,7 @@
 
 namespace League\Glide\Urls;
 
-use PHPUnit\Framework\TestCase;
-
-class UrlBuilderFactoryTest extends TestCase
+class UrlBuilderFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreate()
     {

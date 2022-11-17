@@ -93,11 +93,11 @@ public function getResponseFactory()
 ~~~ php
 <?php
 
-// Set the default manipulators
-public function setManipulators(array $manipulators)
+// Set the default manipulations
+public function setDefaultManipulations(array $defaultManipulations)
 
-// Get the default manipulators
-public function getManipulators()
+// Get the default manipulations
+public function getDefaultManipulations()
 ~~~
 
 ## Base URL

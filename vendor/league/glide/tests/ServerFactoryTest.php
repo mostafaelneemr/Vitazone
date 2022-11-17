@@ -2,20 +2,18 @@
 
 namespace League\Glide;
 
-use InvalidArgumentException;
 use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class ServerFactoryTest extends TestCase
+class ServerFactoryTest extends \PHPUnit_Framework_TestCase
 {
-    public function testCreateServerFactory()
+    public function testCreateInstance()
     {
-        $this->assertInstanceOf('League\Glide\ServerFactory', new ServerFactory());
+        $this->assertInstanceOf('League\Glide\ImageServerFactory', new ImageServerFactory());
     }
 
     public function testGetServer()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'source' => Mockery::mock('League\Flysystem\FilesystemInterface'),
             'cache' => Mockery::mock('League\Flysystem\FilesystemInterface'),
             'response' => Mockery::mock('League\Glide\Responses\ResponseFactoryInterface'),
@@ -26,13 +24,13 @@ class ServerFactoryTest extends TestCase
 
     public function testGetSource()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'source' => Mockery::mock('League\Flysystem\FilesystemInterface'),
         ]);
 
         $this->assertInstanceOf('League\Flysystem\FilesystemInterface', $server->getSource());
 
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'source' => sys_get_temp_dir(),
         ]);
 
@@ -41,16 +39,18 @@ class ServerFactoryTest extends TestCase
 
     public function testGetSourceWithNoneSet()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('A "source" file system must be set.');
+        $this->setExpectedException(
+            'InvalidArgumentException',
+            'A "source" file system must be set.'
+        );
 
-        $server = new ServerFactory();
+        $server = new ImageServerFactory();
         $server->getSource();
     }
 
     public function testGetSourcePathPrefix()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'source_path_prefix' => 'source',
         ]);
 
@@ -59,13 +59,13 @@ class ServerFactoryTest extends TestCase
 
     public function testGetCache()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'cache' => Mockery::mock('League\Flysystem\FilesystemInterface'),
         ]);
 
         $this->assertInstanceOf('League\Flysystem\FilesystemInterface', $server->getCache());
 
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'cache' => sys_get_temp_dir(),
         ]);
 
@@ -74,16 +74,18 @@ class ServerFactoryTest extends TestCase
 
     public function testGetCacheWithNoneSet()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('A "cache" file system must be set.');
+        $this->setExpectedException(
+            'InvalidArgumentException',
+            'A "cache" file system must be set.'
+        );
 
-        $server = new ServerFactory();
+        $server = new ImageServerFactory();
         $server->getCache();
     }
 
     public function testGetCachePathPrefix()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'cache_path_prefix' => 'cache',
         ]);
 
@@ -92,11 +94,11 @@ class ServerFactoryTest extends TestCase
 
     public function testGetGroupCacheInFolders()
     {
-        $server = new ServerFactory();
+        $server = new ImageServerFactory();
 
         $this->assertTrue($server->getGroupCacheInFolders());
 
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'group_cache_in_folders' => false,
         ]);
 
@@ -105,11 +107,11 @@ class ServerFactoryTest extends TestCase
 
     public function testGetCacheWithFileExtensions()
     {
-        $server = new ServerFactory();
+        $server = new ImageServerFactory();
 
         $this->assertFalse($server->getCacheWithFileExtensions());
 
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'cache_with_file_extensions' => true,
         ]);
 
@@ -118,13 +120,13 @@ class ServerFactoryTest extends TestCase
 
     public function testGetWatermarks()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'watermarks' => Mockery::mock('League\Flysystem\FilesystemInterface'),
         ]);
 
         $this->assertInstanceOf('League\Flysystem\FilesystemInterface', $server->getWatermarks());
 
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'watermarks' => sys_get_temp_dir(),
         ]);
 
@@ -133,7 +135,7 @@ class ServerFactoryTest extends TestCase
 
     public function testGetWatermarksPathPrefix()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'watermarks_path_prefix' => 'watermarks',
         ]);
 
@@ -142,14 +144,14 @@ class ServerFactoryTest extends TestCase
 
     public function testGetApi()
     {
-        $server = new ServerFactory();
+        $server = new ImageServerFactory();
 
         $this->assertInstanceOf('League\Glide\Api\Api', $server->getApi());
     }
 
     public function testGetImageManager()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'driver' => 'imagick',
         ]);
         $imageManager = $server->getImageManager();
@@ -160,7 +162,7 @@ class ServerFactoryTest extends TestCase
 
     public function testGetImageManagerWithNoneSet()
     {
-        $server = new ServerFactory();
+        $server = new ImageServerFactory();
         $imageManager = $server->getImageManager();
 
         $this->assertInstanceOf('Intervention\Image\ImageManager', $imageManager);
@@ -169,16 +171,16 @@ class ServerFactoryTest extends TestCase
 
     public function testGetManipulators()
     {
-        $server = new ServerFactory();
+        $server = new ImageServerFactory();
         $manipulators = $server->getManipulators();
 
-        $this->assertIsArray($manipulators);
+        $this->assertInternalType('array', $manipulators);
         $this->assertInstanceOf('League\Glide\Manipulators\ManipulatorInterface', $manipulators[0]);
     }
 
     public function testGetMaxImageSize()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'max_image_size' => 100,
         ]);
 
@@ -191,7 +193,7 @@ class ServerFactoryTest extends TestCase
             'fm' => 'jpg',
         ];
 
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'defaults' => $defaults,
         ]);
 
@@ -206,7 +208,7 @@ class ServerFactoryTest extends TestCase
             ],
         ];
 
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'presets' => $presets,
         ]);
 
@@ -215,7 +217,7 @@ class ServerFactoryTest extends TestCase
 
     public function testGetBaseUrl()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'base_url' => 'img/',
         ]);
 
@@ -224,7 +226,7 @@ class ServerFactoryTest extends TestCase
 
     public function testGetResponseFactory()
     {
-        $server = new ServerFactory([
+        $server = new ImageServerFactory([
             'response' => Mockery::mock('League\Glide\Responses\ResponseFactoryInterface'),
         ]);
 
@@ -233,14 +235,14 @@ class ServerFactoryTest extends TestCase
 
     public function testGetResponseFactoryWithNoneSet()
     {
-        $server = new ServerFactory();
+        $server = new ImageServerFactory();
 
         $this->assertNull($server->getResponseFactory());
     }
 
     public function testCreate()
     {
-        $server = ServerFactory::create([
+        $server = ImageServer::create([
             'source' => Mockery::mock('League\Flysystem\FilesystemInterface'),
             'cache' => Mockery::mock('League\Flysystem\FilesystemInterface'),
             'response' => Mockery::mock('League\Glide\Responses\ResponseFactoryInterface'),

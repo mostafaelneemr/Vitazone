@@ -2,14 +2,11 @@
 
 namespace League\Glide\Signatures;
 
-use League\Glide\Signatures\SignatureException;
-use PHPUnit\Framework\TestCase;
-
-class SignatureTest extends TestCase
+class SignatureTest extends \PHPUnit_Framework_TestCase
 {
     private $httpSignature;
 
-    public function setUp(): void
+    public function setUp()
     {
         $this->httpSignature = new Signature('example');
     }
@@ -57,8 +54,7 @@ class SignatureTest extends TestCase
 
     public function testValidateRequestWithMissingSignature()
     {
-        $this->expectException(SignatureException::class);
-        $this->expectExceptionMessage('Signature is missing.');
+        $this->setExpectedException('League\Glide\Signatures\SignatureException', 'Signature is missing.');
 
         $this->httpSignature->validateRequest('image.jpg', [
             'w' => '100',
@@ -67,8 +63,7 @@ class SignatureTest extends TestCase
 
     public function testValidateRequestWithInvalidSignature()
     {
-        $this->expectException(SignatureException::class);
-        $this->expectExceptionMessage('Signature is not valid.');
+        $this->setExpectedException('League\Glide\Signatures\SignatureException', 'Signature is not valid.');
 
         $this->httpSignature->validateRequest('image.jpg', [
             'w' => '100',

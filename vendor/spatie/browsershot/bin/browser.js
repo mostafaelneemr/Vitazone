@@ -16,11 +16,27 @@ const request = args[0].startsWith('-f ')
 
 const requestsList = [];
 
+const consoleMessages = [];
+
+const failedRequests = [];
+
 const getOutput = async (page, request) => {
     let output;
 
     if (request.action == 'requestsList') {
         output = JSON.stringify(requestsList);
+
+        return output;
+    }
+
+    if (request.action == 'consoleMessages') {
+        output = JSON.stringify(consoleMessages);
+
+        return output;
+    }
+
+    if (request.action == 'failedRequests') {
+        output = JSON.stringify(failedRequests);
 
         return output;
     }
@@ -41,7 +57,7 @@ const callChrome = async pup => {
     let page;
     let output;
     let remoteInstance;
-	const puppet = (pup || require('puppeteer'));
+    const puppet = (pup || require('puppeteer'));
 
     try {
         if (request.options.remoteInstanceUrl || request.options.browserWSEndpoint ) {
@@ -85,12 +101,88 @@ const callChrome = async pup => {
 
         await page.setRequestInterception(true);
 
-        if (request.postParams) {
-            const postParamsArray = request.postParams;
-            const queryString = Object.keys(postParamsArray)
-                .map(key => `${key}=${postParamsArray[key]}`)
-                .join('&');
-            page.once("request", interceptedRequest => {
+        const contentUrl = request.options.contentUrl;
+        const parsedContentUrl = contentUrl ? contentUrl.replace(/\/$/, "") : undefined;
+        let pageContent;
+
+        if (contentUrl) {
+            pageContent = fs.readFileSync(request.url.replace('file://', ''));
+            request.url = contentUrl;
+        }
+
+        page.on('console',  message => consoleMessages.push({
+            type: message.type(),
+            message: message.text(),
+            location: message.location()
+        }));
+
+        page.on('response', function (response) {
+            if (response.status() >= 200 && response.status() <= 399) {
+                return;
+            }
+
+            failedRequests.push({
+                status: response.status(),
+                url: response.url(),
+            });
+        })
+
+        page.on('request', interceptedRequest => {
+            var headers = interceptedRequest.headers();
+
+            requestsList.push({
+                url: interceptedRequest.url(),
+            });
+
+            if (request.options && request.options.disableImages) {
+                if (interceptedRequest.resourceType() === 'image') {
+                    interceptedRequest.abort();
+                    return;
+                }
+            }
+
+            if (request.options && request.options.blockDomains) {
+                const hostname = URLParse(interceptedRequest.url()).hostname;
+                if (request.options.blockDomains.includes(hostname)) {
+                    interceptedRequest.abort();
+                    return;
+                }
+            }
+
+            if (request.options && request.options.blockUrls) {
+                for (const element of request.options.blockUrls) {
+                    if (interceptedRequest.url().indexOf(element) >= 0) {
+                        interceptedRequest.abort();
+                        return;
+                    }
+                }
+            }
+
+            if (request.options && request.options.extraNavigationHTTPHeaders) {
+                // Do nothing in case of non-navigation requests.
+                if (interceptedRequest.isNavigationRequest()) {
+                    headers = Object.assign({}, headers, request.options.extraNavigationHTTPHeaders);
+                }
+            }
+
+            if (pageContent) {
+                const interceptedUrl = interceptedRequest.url().replace(/\/$/, "");
+
+                // if content url matches the intercepted request url, will return the content fetched from the local file system
+                if (interceptedUrl === parsedContentUrl) {
+                    interceptedRequest.respond({
+                        headers,
+                        body: pageContent,
+                    });
+                    return;
+                }
+            }
+
+            if (request.postParams) {
+                const postParamsArray = request.postParams;
+                const queryString = Object.keys(postParamsArray)
+                    .map(key => `${key}=${postParamsArray[key]}`)
+                    .join('&');
                 interceptedRequest.continue({
                     method: "POST",
                     postData: queryString,
@@ -99,45 +191,11 @@ const callChrome = async pup => {
                         "Content-Type": "application/x-www-form-urlencoded"
                     }
                 });
-            });
-        }
+                return;
+            }
 
-        page.on('request', request => {
-            requestsList.push({
-                url: request.url(),
-            });
-            request.continue();
+            interceptedRequest.continue({ headers });
         });
-
-        if (request.options && request.options.disableImages) {
-            page.on('request', request => {
-                if (request.resourceType() === 'image')
-                    request.abort();
-                else
-                    request.continue();
-            });
-        }
-
-        if (request.options && request.options.blockDomains) {
-            var domainsArray = JSON.parse(request.options.blockDomains);
-            page.on('request', request => {
-                const hostname = URLParse(request.url()).hostname;
-                domainsArray.forEach(function(value){
-                    if (hostname.indexOf(value) >= 0) request.abort();
-                });
-                request.continue();
-            });
-        }
-
-        if (request.options && request.options.blockUrls) {
-            var urlsArray = JSON.parse(request.options.blockUrls);
-            page.on('request', request => {
-                urlsArray.forEach(function(value){
-                    if (request.url().indexOf(value) >= 0) request.abort();
-                });
-                request.continue();
-            });
-        }
 
         if (request.options && request.options.dismissDialogs) {
             page.on('dialog', async dialog => {
@@ -188,7 +246,15 @@ const callChrome = async pup => {
             requestOptions.waitUntil = request.options.waitUntil;
         }
 
-        await page.goto(request.url, requestOptions);
+        const response = await page.goto(request.url, requestOptions);
+
+        if (request.options.preventUnsuccessfulResponse) {
+            const status = response.status()
+
+            if (status >= 400 && status < 600) {
+                throw {type: "UnsuccessfulResponse", status};
+            }
+        }
 
         if (request.options && request.options.disableImages) {
             await page.evaluate(() => {
@@ -238,18 +304,37 @@ const callChrome = async pup => {
             await page.waitForTimeout(request.options.delay);
         }
 
+        if (request.options.initialPageNumber) {
+            await page.evaluate((initialPageNumber) => {
+                window.pageStart = initialPageNumber;
+
+                const style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = '.empty-page { page-break-after: always; visibility: hidden; }';
+                document.getElementsByTagName('head')[0].appendChild(style);
+
+                const emptyPages = Array.from({length: window.pageStart}).map(() => {
+                    const emptyPage = document.createElement('div');
+                    emptyPage.className = "empty-page";
+                    emptyPage.textContent = "empty";
+                    return emptyPage;
+                });
+                document.body.prepend(...emptyPages);
+            }, request.options.initialPageNumber);
+        }
+
         if (request.options.selector) {
-        	var element;
+            var element;
             const index = request.options.selectorIndex || 0;
             if(index){
-            	element = await page.$$(request.options.selector);
-            	if(!element.length || typeof element[index] === 'undefined'){
-            		element = null;
-            	}else{
-            		element = element[index];
-            	}
+                element = await page.$$(request.options.selector);
+                if(!element.length || typeof element[index] === 'undefined'){
+                    element = null;
+                }else{
+                    element = element[index];
+                }
             }else{
-            	element = await page.$(request.options.selector);
+                element = await page.$(request.options.selector);
             }
             if (element === null) {
                 throw {type: 'ElementNotFound'};
@@ -287,6 +372,12 @@ const callChrome = async pup => {
             await remoteInstance ? browser.disconnect() : browser.close();
         }
 
+        if (exception.type === 'UnsuccessfulResponse') {
+            console.error(exception.status)
+
+            process.exit(3);
+        }
+
         console.error(exception);
 
         if (exception.type === 'ElementNotFound') {
@@ -298,7 +389,7 @@ const callChrome = async pup => {
 };
 
 if (require.main === module) {
-	callChrome();
+    callChrome();
 }
 
 exports.callChrome = callChrome;

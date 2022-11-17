@@ -8,6 +8,7 @@
         "php": "^7.2",
         "anandsiddharth/laravel-paytm-wallet": "^1.0",
         "barryvdh/laravel-dompdf": "^0.8.2",
+        "bugsnag/bugsnag-laravel": "^2.25",
         "carlos-meneses/laravel-mpdf": "^2.1",
         "fideloper/proxy": "^4.0",
         "gabrielbull/ups-api": "^0.8.0",
@@ -31,6 +32,7 @@
         "spatie/laravel-permission": "^4.0",
         "spatie/laravel-sitemap": "5.8.0",
         "stripe/stripe-php": "^6.29",
+        "symfony/symfony": "5.4.x",
         "twilio/sdk": "^6.1"
     },
     "require-dev": {

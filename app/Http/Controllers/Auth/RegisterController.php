@@ -18,6 +18,9 @@ use Cookie;
 use Nexmo;
 use Twilio\Rest\Client;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use RuntimeException;
+
 class RegisterController extends Controller
 {
     /*
@@ -154,6 +157,8 @@ class RegisterController extends Controller
 
     protected function registered(Request $request, $user)
     {
+        Bugsnag::notifyException(new RuntimeException("Test error"));
+
         if ($user->email == null) {
             return redirect()->route('verification');
         } else {

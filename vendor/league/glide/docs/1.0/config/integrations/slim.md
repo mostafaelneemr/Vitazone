@@ -12,7 +12,7 @@ If your application uses [Slim](http://www.slimframework.com/) framework, you ca
 ## Installation
 
 ~~~ bash
-composer require league/glide-slim
+composer require league/slim
 ~~~
 
 ## Configuration

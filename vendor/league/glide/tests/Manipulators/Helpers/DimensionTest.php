@@ -3,18 +3,17 @@
 namespace League\Glide\Manipulators\Helpers;
 
 use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class DimensionTest extends TestCase
+class DimensionTest extends \PHPUnit_Framework_TestCase
 {
     private $image;
 
-    public function setUp(): void
+    public function setUp()
     {
         $this->image = Mockery::mock('Intervention\Image\Image');
     }
 
-    public function tearDown(): void
+    public function tearDown()
     {
         Mockery::close();
     }

@@ -14,8 +14,12 @@ namespace Symfony\Contracts\Service;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
+// Help opcache.preload discover always-needed symbols
+class_exists(ContainerExceptionInterface::class);
+class_exists(NotFoundExceptionInterface::class);
+
 /**
- * A trait to help implement PSR-11 service locators.
+ * A trait to help implement ServiceProviderInterface.
  *
  * @author Robin Chalas <robin.chalas@gmail.com>
  * @author Nicolas Grekas <p@tchwork.com>
@@ -23,7 +27,8 @@ use Psr\Container\NotFoundExceptionInterface;
 trait ServiceLocatorTrait
 {
     private $factories;
-    private $loading = array();
+    private $loading = [];
+    private $providedTypes;
 
     /**
      * @param callable[] $factories
@@ -35,16 +40,20 @@ trait ServiceLocatorTrait
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function has($id)
+    public function has(string $id)
     {
         return isset($this->factories[$id]);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return mixed
      */
-    public function get($id)
+    public function get(string $id)
     {
         if (!isset($this->factories[$id])) {
             throw $this->createNotFoundException($id);
@@ -64,6 +73,28 @@ trait ServiceLocatorTrait
         } finally {
             unset($this->loading[$id]);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getProvidedServices(): array
+    {
+        if (null === $this->providedTypes) {
+            $this->providedTypes = [];
+
+            foreach ($this->factories as $name => $factory) {
+                if (!\is_callable($factory)) {
+                    $this->providedTypes[$name] = '?';
+                } else {
+                    $type = (new \ReflectionFunction($factory))->getReturnType();
+
+                    $this->providedTypes[$name] = $type ? ($type->allowsNull() ? '?' : '').($type instanceof \ReflectionNamedType ? $type->getName() : $type) : '?';
+                }
+            }
+        }
+
+        return $this->providedTypes;
     }
 
     private function createNotFoundException(string $id): NotFoundExceptionInterface

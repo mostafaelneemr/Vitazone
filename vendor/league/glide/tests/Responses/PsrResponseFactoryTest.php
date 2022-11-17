@@ -3,9 +3,8 @@
 namespace League\Glide\Responses;
 
 use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class PsrResponseFactoryTest extends TestCase
+class PsrResponseFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreateInstance()
     {

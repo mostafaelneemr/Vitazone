@@ -2,22 +2,20 @@
 
 namespace League\Glide\Manipulators;
 
-use League\Glide\Filesystem\FilesystemException;
 use Mockery;
-use PHPUnit\Framework\TestCase;
 
-class WatermarkTest extends TestCase
+class WatermarkTest extends \PHPUnit_Framework_TestCase
 {
     private $manipulator;
 
-    public function setUp(): void
+    public function setUp()
     {
         $this->manipulator = new Watermark(
             Mockery::mock('League\Flysystem\FilesystemInterface')
         );
     }
 
-    public function tearDown(): void
+    public function tearDown()
     {
         Mockery::close();
     }
@@ -79,9 +77,6 @@ class WatermarkTest extends TestCase
         );
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testGetImage()
     {
         $this->manipulator->getWatermarks()
@@ -112,9 +107,6 @@ class WatermarkTest extends TestCase
 
     public function testGetImageWithUnreadableSource()
     {
-        $this->expectException(FilesystemException::class);
-        $this->expectExceptionMessage('Could not read the image `image.jpg`.');
-
         $this->manipulator->getWatermarks()
             ->shouldReceive('has')
                 ->with('image.jpg')
@@ -126,6 +118,11 @@ class WatermarkTest extends TestCase
                 ->once();
 
         $image = Mockery::mock('Intervention\Image\Image');
+
+        $this->setExpectedException(
+            'League\Glide\Filesystem\FilesystemException',
+            'Could not read the image `image.jpg`.'
+        );
 
         $this->manipulator->setParams(['mark' => 'image.jpg'])->getImage($image);
     }
