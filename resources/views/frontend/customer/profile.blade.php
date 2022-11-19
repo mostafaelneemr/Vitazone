@@ -61,6 +61,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        @include('frontend.message')
                         <form class="" action="{{ route('customer.profile.update') }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
@@ -77,6 +79,12 @@
                                             <input type="text" class="form-control mb-3"
                                                 placeholder="{{ translate('Your Name') }}" name="name"
                                                 value="{{ Auth::user()->name }}">
+
+                                                @if ($errors->has('email'))
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $errors->first('email') }}</strong>
+                                                </span>
+                                                @endif
                                         </div>
                                     </div>
 
@@ -203,15 +211,6 @@
                                                 </div>
                                             </div>
                                         @endforeach
-                                        @if ($errors->any())
-                                            <div class="alert alert-danger">
-                                                <ul>
-                                                    @foreach ($errors->all() as $error)
-                                                        <li>{{ $error }}</li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                        @endif
                                         <div class="col-lg-6 mx-auto" onclick="add_new_address()">
                                             <div class="border p-3 rounded mb-3 c-pointer text-center bg-light">
                                                 <i class="la la-plus la-2x"></i>

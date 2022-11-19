@@ -155,6 +155,12 @@ class HomeController extends Controller
 
     public function customer_update_profile(Request $request)
     {
+         $this->validate($request, [
+            'name' => 'required|string|min:3',
+            'phone' => ["required","digits:11","regex:/01[0125][0-9]{8}$/","numeric"], 
+            'photo' => 'image|mimes:jpeg,png,jpg,gif,svg',
+        ]);
+
         if (env('DEMO_MODE') == 'On') {
             flash(translate('Sorry! the action is not permitted in demo '))->error();
             return back();
@@ -1076,7 +1082,6 @@ class HomeController extends Controller
         return view('frontend.seller.digitalproducts.product_edit', compact('categories', 'product'));
     }
 
-
     // Ajax call
     public function new_verify(Request $request)
     {
@@ -1090,8 +1095,7 @@ class HomeController extends Controller
         $response = $this->send_verification_mail($request, $email);
         return json_encode($response);
     }
-
-
+    
     // Form request
     public function update_email(Request $request)
     {

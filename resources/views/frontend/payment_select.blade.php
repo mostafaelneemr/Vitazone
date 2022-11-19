@@ -63,14 +63,13 @@
                                     <div class="row">
                                         <div class="col-md-6 mx-auto">
                                             <div class="row">
+
                                                 @if (\App\BusinessSetting::where('type', 'paymob')->first()->value == 1)
                                                     <div class="col-6">
-
                                                         <label class="payment_option mb-4" data-toggle="tooltip"
                                                             data-title="paymob_visa_master_card">
                                                             <input type="radio" id="" name="payment_option"
-                                                                value="paymob_visa_master_card" class="online_payment"
-                                                                checked>
+                                                                value="paymob_visa_master_card" class="online_payment" checked>
                                                             <span>
                                                                 <img style="height: 107px !important;" loading="lazy"
                                                                     src="{{ my_asset('frontend/images/icons/cards/mastercard-visa-card.png') }}"
@@ -79,9 +78,9 @@
                                                         </label>
                                                     </div>
                                                 @endif
+
                                                 @if (\App\BusinessSetting::where('type', 'paymob')->first()->value == 1)
                                                     <div class="col-6">
-
                                                         <label class="payment_option mb-4" data-toggle="tooltip"
                                                             data-title="paymob_bank_instalments">
                                                             <input type="radio" id="" name="payment_option"
@@ -95,9 +94,9 @@
                                                         </label>
                                                     </div>
                                                 @endif
+
                                                 @if (\App\BusinessSetting::where('type', 'paymob')->first()->value == 1)
                                                     <div class="col-6">
-
                                                         <label class="payment_option mb-4" data-toggle="tooltip"
                                                             data-title="paymob_valu">
                                                             <input type="radio" id="" name="payment_option"
@@ -110,10 +109,9 @@
                                                         </label>
                                                     </div>
                                                 @endif
-
+                                                
                                                 @if (\App\BusinessSetting::where('type', 'paymob')->first()->value == 1)
                                                     <div class="col-6">
-
                                                         <label class="payment_option mb-4" data-toggle="tooltip"
                                                             data-title="paymob_wallet">
                                                             <input type="radio" id="" name="payment_option"

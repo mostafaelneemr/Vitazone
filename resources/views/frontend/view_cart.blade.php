@@ -239,15 +239,9 @@
                                                                 </label>
                                                             </div>
                                                         @endforeach
-                                                        @if ($errors->any())
-                                                            <div class="alert alert-danger">
-                                                                <ul>
-                                                                    @foreach ($errors->all() as $error)
-                                                                        <li>{{ $error }}</li>
-                                                                    @endforeach
-                                                                </ul>
-                                                            </div>
-                                                        @endif
+
+                                                        @include('frontend.message')
+                                                        
                                                         <input type="hidden" name="checkout_type" value="logged">
                                                         <div class="col-md-6 mx-auto" onclick="add_new_address()">
                                                             <div
@@ -443,7 +437,7 @@
                             </div>
                             <div class="col-md-10">
                                 <div class="mb-3">
-                                    <select class="form-control mb-3 selectpicker" id="exist_phones" onchange="setInputPhone(this)"
+                                    {{-- <select class="form-control mb-3 selectpicker" id="exist_phones" onchange="setInputPhone(this)"
                                         data-placeholder="{{ translate('Select your phone') }}">
                                         <option id="empty_select_option" selected disabled>{{ translate('Select Your Phone') }}</option>
                                         @if (Auth::check())
@@ -451,7 +445,7 @@
                                             <option value="{{ $phonee->phone }}">{{ $phonee->phone }}</option>
                                         @endforeach
                                         @endif
-                                    </select>
+                                    </select> --}}
                                 </div>
                             </div>
                         </div>
