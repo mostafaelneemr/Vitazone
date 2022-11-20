@@ -118,13 +118,23 @@ class CheckoutController extends Controller
                 } elseif ($request->payment_option == 'paysky') {
                     return redirect('checkout/payment_select?paysky=true');
                 } elseif ($request->payment_option == 'paymob_visa_master_card') {
-                    $invalidData = false;
-                    $iframe = payWithPaymob('online_card');
-                    return view('frontend.paymob_visa', compact('iframe', 'invalidData'));
+                    if(Auth::user()->email || session::get('shipping_info')['email'] != null){ 
+                        $invalidData = false;
+                        $iframe = payWithPaymob('online_card');
+                        return view('frontend.paymob_visa', compact('iframe', 'invalidData'));
+                    } else { 
+                        flash(translate('please insert your email address'));
+                        return redirect()->back();
+                    }
                 } elseif ($request->payment_option == 'paymob_bank_instalments') {
-                    $invalidData = false;
-                    $iframe = payWithPaymob('bank_installment');
-                    return view('frontend.paymob_visa', compact('iframe', 'invalidData'));
+                    if(Auth::user()->email || session::get('shipping_info')['email'] != null){ 
+                        $invalidData = false;
+                        $iframe = payWithPaymob('bank_installment');
+                        return view('frontend.paymob_visa', compact('iframe', 'invalidData'));
+                        }else {
+                            flash(translate('please insert your email address'));
+                            return redirect()->back();
+                        }
                 } elseif ($request->payment_option == 'paymob_valu') {
                     $invalidData = false;
                     $iframe = payWithPaymob('paymob_valu');
