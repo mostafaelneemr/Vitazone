@@ -18,6 +18,7 @@
                             </div>
                         </div>
                         <form class="" action="{{ route('orders.track') }}" method="GET" enctype="multipart/form-data">
+                            @csrf
                             <div class="form-box bg-white mt-4">
                                 <div class="form-box-title px-3 py-2">
                                     {{ translate('Order Info') }}

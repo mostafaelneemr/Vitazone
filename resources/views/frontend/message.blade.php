@@ -17,7 +17,6 @@
     </div>
 @endif
 
-
 @if (session()->has('edit'))
     <div class="alert alert-info alert-dismissible fade show" role="alert">
         <strong>{{ session()->get('edit') }}</strong>

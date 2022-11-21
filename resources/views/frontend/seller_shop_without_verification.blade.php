@@ -78,9 +78,7 @@
                             <a class="btn btn-styled btn-base-1 btn-icon-left strong-700 hov-bounce hov-shaddow" href="{{ route('shop.visit',$shop->id) }}" target="blank">{{ translate('To App')}}</a>
                         </div>
                     </div>
-                    @endif
-                   
-                     
+                    @endif 
                    
                 </div>
             </div>

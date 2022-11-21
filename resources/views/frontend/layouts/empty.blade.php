@@ -31,9 +31,6 @@
 
             @yield('meta')
 
-          
-
-
                 <meta itemprop="image" content="{{ static_asset(\App\GeneralSetting::first()->$logo) }}">
 
                 <!-- Twitter Card data -->
