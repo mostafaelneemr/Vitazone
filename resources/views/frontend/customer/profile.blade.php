@@ -257,6 +257,7 @@
                                 </div>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>
@@ -525,6 +526,40 @@
 @endsection
 
 @section('script')
+    <script type="text/javascript">
+        $('.new-email-verification').on('click', function() {
+
+            $(this).find('.loading').removeClass('d-none');
+
+            $(this).find('.default').addClass('d-none');
+
+            var email = $("input[name=email]").val();
+
+            $.post('{{ route('user.new.verify') }}', {_token:'{{ csrf_token() }}', email: email}, function(data){
+
+                data = JSON.parse(data);
+
+                $('.default').removeClass('d-none');
+
+                $('.loading').addClass('d-none');
+
+                if(data.status == 2)
+
+                    AIZ.plugins.notify('warning', data.message);
+
+                else if(data.status == 1)
+
+                    AIZ.plugins.notify('success', data.message);
+
+                else
+
+                    AIZ.plugins.notify('danger', data.message);
+
+            });
+
+        });
+    </script>
+
     <script>
         var sendSmsCountDown = 59;
         var default_phone = `{{ $default_phone }}`;
@@ -751,6 +786,7 @@
             $("#empty_select_option").prop("selected", true)
         }
     </script>
+
     <script type="text/javascript">
         function add_new_address() {
             $('#new-address-modal').modal('show');
@@ -895,6 +931,7 @@
                 });
         });
     </script>
+
     <script>
         $('.digit-group').find('input').each(function() {
             $(this).attr('maxlength', 1);

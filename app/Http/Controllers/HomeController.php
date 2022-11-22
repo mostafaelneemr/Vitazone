@@ -1092,7 +1092,7 @@ class HomeController extends Controller
             return json_encode($response);
         }
 
-        $response = $this->send_verification_mail($request, $email);
+        $response = $this->send_email_change_verification_mail($request, $email);
         return json_encode($response);
     }
     
@@ -1101,7 +1101,8 @@ class HomeController extends Controller
     {
         $email = $request->email;
         if (isUnique($email)) {
-            $this->send_email_change_verification_mail($request, $email);
+            // $this->send_email_change_verification_mail($request, $email);
+            auth()->user()->update(['email' => $request->get('email')]);
             flash(translate('A verification mail has been sent to the mail you provided us with.'))->success();
             return back();
         }
