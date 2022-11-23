@@ -28,7 +28,7 @@ class AddressController extends Controller
             'address' => 'required',
             'country' => 'required',
             'province' => 'required',
-            'phone' => ["required","regex:regex:/01[0125][0-9]{8}$/","numeric"],
+            'phone' => ["required","regex:/01[0125][0-9]{8}$/","numeric"],
             'city' => 'required',
             'region' => 'required',
         ]);
