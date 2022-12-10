@@ -968,6 +968,7 @@
         }
 
     </script>
+    
     <script type="text/javascript">
         function add_new_address() {
             $('#new-address-modal').modal('show');
@@ -1091,6 +1092,7 @@
         }
 
     </script>
+
     <script>
         $('.digit-group').find('input').each(function() {
             $(this).attr('maxlength', 1);
@@ -1126,6 +1128,7 @@
         });
 
     </script>
+
     <script type="text/javascript">
         function updateQuantity(key, element) {
             $.post(`{{ route('cart.updateQuantity') }}`, {

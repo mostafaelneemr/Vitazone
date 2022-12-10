@@ -1573,88 +1573,101 @@ if (!function_exists('removePhoneZero')) {
 if (!function_exists('payWithPaymob')) {
     function payWithPaymob($type)
     {
-        if ($type == 'saved_token' || $type == 'online_card') {
-            $integration_id = env('PAYMOB_CARD_INTEGRATION_ID');
-        } elseif ($type == 'paymob_valu') {
-            $integration_id = env('PAYMOB_VALU_INTEGRATION_ID');
-        } elseif ($type == 'paymob_wallet') {
-            $integration_id = env('WALLET_INTEGRATION_ID');
-        } elseif ($type == 'bank_installment') {
-            $integration_id = env('PAYMOB_BANK_INTEGRATION_ID');
-        }
-        $order = Order::findOrFail(Session::get('order_id'));
-        $response = Http::withHeaders(
-            ['content-type' => 'application/json']
-        )->post(
-            'https://accept.paymobsolutions.com/api/auth/tokens',
-            [
-                "api_key" => env("MOB_API_KEY")
-            ]
-        );
-        $json = $response->json();
-        $response_final = Http::withHeaders(
-            ['content-type' => 'application/json']
-        )->post(
-            'https://accept.paymobsolutions.com/api/ecommerce/orders',
-            [
-                "auth_token" => $json['token'],
-                "delivery_needed" => "false",
-                "amount_cents" => $order->grand_total * 100,
-                "items" => []
-            ]
-        );
-        $json_final = $response_final->json();
-        $order->payment_refrence = $json_final['id'];
-        $order->save();
-        $response_final_final = Http::withHeaders(
-            ['content-type' => 'application/json']
-        )->post(
-            'https://accept.paymobsolutions.com/api/acceptance/payment_keys',
-            [
-                "auth_token" => $json['token'],
-                "expiration" => 36000,
-                "amount_cents" => $json_final['amount_cents'],
-                "order_id" => $json_final['id'],
-                "billing_data" => [
-                    "apartment" => "NA", "email" => ($order->user) ? $order->user->email : Session::get('shipping_info')['email'],
-                    "floor" => "NA",
-                    "first_name" => ($order->user) ? $order->user->name : Session::get('shipping_info')['name'],
-                    "street" => ($order->user) ? $order->user->address : Session::get('shipping_info')['address'],
-                    "building" => "NA",
-                    "phone_number" => ($order->user) ? $order->user->phone : Session::get('shipping_info')['phone'],
-                    "shipping_method" => "NA",
-                    "postal_code" => "NA",
-                    "city" => "NA", ($order->user) ? $order->user->city : Session::get('shipping_info')['city'],
-                    "country" => "NA", ($order->user) ? $order->user->country : Session::get('shipping_info')['country'],
-                    "last_name" => "X",
-                    "state" => "NA"
-                ],
-                "currency" => "EGP",
-                "integration_id" => $integration_id
-            ]
-        );
-        $response_final_final_json = $response_final_final->json();
-        if ($type == 'bank_installment') {
-            if (App::getLocale() == 'en') {
-                $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('BANK_INSTALLMENTS_IFRAME_ID_EN') . "?payment_token=" . $response_final_final_json['token'];
-            } else {
-                $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('BANK_INSTALLMENTS_IFRAME_ID_AR') . "?payment_token=" . $response_final_final_json['token'];
+        try{
+        
+            if ($type == 'saved_token' || $type == 'online_card') {
+                $integration_id = env('PAYMOB_CARD_INTEGRATION_ID');
+            } elseif ($type == 'paymob_valu') {
+                $integration_id = env('PAYMOB_VALU_INTEGRATION_ID');
+            } elseif ($type == 'paymob_wallet') {
+                $integration_id = env('WALLET_INTEGRATION_ID');
+            } elseif ($type == 'bank_installment') {
+                $integration_id = env('PAYMOB_BANK_INTEGRATION_ID');
             }
-            return $res;
-        } elseif ($type == 'online_card') {
-            if (App::getLocale() == 'en') {
-                $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('PAYMOB_IFRAME_ID_EN') . "?payment_token=" . $response_final_final_json['token'];
-            } else {
-                $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('PAYMOB_IFRAME_ID_AR') . "?payment_token=" . $response_final_final_json['token'];
+            $order = Order::findOrFail(Session::get('order_id'));
+            $response = Http::withHeaders(
+                ['content-type' => 'application/json']
+            )->post(
+                'https://accept.paymobsolutions.com/api/auth/tokens',
+                [
+                    "api_key" => env("MOB_API_KEY")
+                ]
+            );
+            $json = $response->json();
+            $response_final = Http::withHeaders(
+                ['content-type' => 'application/json']
+            )->post(
+                'https://accept.paymobsolutions.com/api/ecommerce/orders',
+                [
+                    "auth_token" => $json['token'],
+                    "delivery_needed" => "false",
+                    "amount_cents" => $order->grand_total * 100,
+                    "items" => []
+                ]
+            );
+            $json_final = $response_final->json();
+            ($order->payment_refrence = $json_final['id']);
+            $order->save();
+            
+            $user = $order->user->name;
+            $name = explode(' ',$user);
+            $lastname = $name[0];
+            
+            $response_final_final = Http::withHeaders(
+                ['content-type' => 'application/json']
+            )->post(
+                'https://accept.paymob.com/api/acceptance/payment_keys',
+                [
+                    "auth_token" => $json['token'],
+                    "expiration" => 36000,
+                    "amount_cents" => $json_final['amount_cents'],
+                    "order_id" => $json_final['id'],
+                    "billing_data" => [
+                        "apartment" => "NA", 
+                        "email" => ($order->user) ? $order->user->email : Session::get('shipping_info')['email'],
+                        "floor" => "NA",
+                        "first_name" => ($order->user) ? $order->user->name : Session::get('shipping_info')['name'],
+                        "street" =>  Session::get('shipping_info')['address'],
+                        "building" => "NA",
+                        "phone_number" => ($order->user) ? $order->user->phone : Session::get('shipping_info')['phone'],
+                        "shipping_method" => "NA",
+                        "postal_code" => "NA",
+                        "city" => "NA", ($order->user) ? $order->user->city : Session::get('shipping_info')['city'],
+                        "country" => "NA", ($order->user) ? $order->user->country : Session::get('shipping_info')['country'],
+                        "last_name" => ($order->user) ? $lastname : Session::get('shipping_info')['name'],
+                        "state" => "NA"
+                    ],
+                    "currency" => "EGP",
+                    "integration_id" => $integration_id
+                ]
+            );
+            $response_final_final_json = $response_final_final->json();
+             //dd($response_final_final_json);
+            if ($type == 'bank_installment') {
+                if (App::getLocale() == 'en') {
+                    $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('BANK_INSTALLMENTS_IFRAME_ID_EN') . "?payment_token=" . $response_final_final_json['token'];
+                } else {
+                    $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('BANK_INSTALLMENTS_IFRAME_ID_AR') . "?payment_token=" . $response_final_final_json['token'];
+                }
+                return $res;
+            } elseif ($type == 'online_card') {
+                if (App::getLocale() == 'en') {
+                    $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('PAYMOB_IFRAME_ID_EN') . "?payment_token=" .  $response_final_final_json['token'];
+                } else {
+                    $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('PAYMOB_IFRAME_ID_AR') . "?payment_token=" . $response_final_final_json['token'];
+                }
+                return $res;
+            } elseif ($type == 'paymob_valu') {
+                $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('VALU_IFRAME_ID_EN') . "?payment_token=" . $response_final_final_json['token']; 
+                return $res;
+            } elseif ($type == 'paymob_wallet') {
+                return $response_final_final_json['token'];
+            } elseif ($type == 'saved_token') {
+                return $response_final_final_json['token'];
             }
-            return $res;
-        } elseif ($type == 'paymob_valu') {
-            $res = "https://accept.paymobsolutions.com/api/acceptance/iframes/" . env('VALU_IFRAME_ID_EN') . "?payment_token=" . $response_final_final_json['token'];
-            return $res;
-        } elseif ($type == 'paymob_wallet') {
-            return $response_final_final_json['token'];
-        } elseif ($type == 'saved_token') {
-            return $response_final_final_json['token'];
+        }catch(\Exception $e) {
+            flash("can\'t payment by paymob, please check your information")->warning();
+            return redirect()->back();
         }
     }
 }

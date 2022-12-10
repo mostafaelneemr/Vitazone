@@ -1099,6 +1099,12 @@ class HomeController extends Controller
     // Form request
     public function update_email(Request $request)
     {
+        $this->validate($request, [
+            'email' => 'required|email|ends_with:gmail.com,hotmail.com,yahoo.com',
+        ],[
+            'email.ends_with' => 'please insert right email just gmail or hotmail or yahoo',
+        ]);
+        
         $email = $request->email;
         if (isUnique($email)) {
             // $this->send_email_change_verification_mail($request, $email);

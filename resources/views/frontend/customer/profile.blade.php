@@ -80,9 +80,9 @@
                                                 placeholder="{{ translate('Your Name') }}" name="name"
                                                 value="{{ Auth::user()->name }}">
 
-                                                @if ($errors->has('email'))
+                                                @if ($errors->has('name'))
                                                 <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $errors->first('email') }}</strong>
+                                                    <strong>{{ $errors->first('name') }}</strong>
                                                 </span>
                                                 @endif
                                         </div>
@@ -94,7 +94,7 @@
                                         </div>
                                         <div class="col-md-10">
                                             <input type="text" class="form-control mb-3"
-                                                placeholder="{{ translate('Your Phone') }}" name="phone"
+                                                placeholder="{{ translate('Your Phone') }}" name="phone" readonly
                                                 value="{{ Auth::user()->phone }}">
                                         </div>
                                     </div>

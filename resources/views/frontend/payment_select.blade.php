@@ -64,6 +64,7 @@
                                         <div class="col-md-6 mx-auto">
                                             <div class="row">
 
+                                                @if(Auth::check())
                                                 @if (\App\BusinessSetting::where('type', 'paymob')->first()->value == 1)
                                                     <div class="col-6">
                                                         <label class="payment_option mb-4" data-toggle="tooltip"
@@ -78,7 +79,10 @@
                                                         </label>
                                                     </div>
                                                 @endif
+                                                @endif
 
+
+                                                @if(Auth::check())
                                                 @if (\App\BusinessSetting::where('type', 'paymob')->first()->value == 1)
                                                     <div class="col-6">
                                                         <label class="payment_option mb-4" data-toggle="tooltip"
@@ -94,7 +98,9 @@
                                                         </label>
                                                     </div>
                                                 @endif
+                                                @endif
 
+                                                @if(Auth::check())
                                                 @if (\App\BusinessSetting::where('type', 'paymob')->first()->value == 1)
                                                     <div class="col-6">
                                                         <label class="payment_option mb-4" data-toggle="tooltip"
@@ -109,7 +115,9 @@
                                                         </label>
                                                     </div>
                                                 @endif
+                                                @endif
                                                 
+                                                @if(Auth::check())
                                                 @if (\App\BusinessSetting::where('type', 'paymob')->first()->value == 1)
                                                     <div class="col-6">
                                                         <label class="payment_option mb-4" data-toggle="tooltip"
@@ -124,6 +132,8 @@
                                                         </label>
                                                     </div>
                                                 @endif
+                                                @endif
+                                                    
                                                 @if (\App\BusinessSetting::where('type', 'paysky')->first()->value == 1)
                                                     <div class="col-6">
 
@@ -469,6 +479,14 @@
                                 <a href="{{ url('/', [$ppSlug]) }}">{{ translate('privacy policy') }}</a>
                             </div>
 
+                            <div>
+                                <span>برجاء التاكد من اتمام كافه البيانات بلوحه التحكم الخاصه بك</span>
+                                <a href="{{ route('profile') }}" class="link link--style-3">
+                                        <i class="ion-android-arrow-back"></i>
+                                        {{ translate('لوحه التحكم') }}
+                                </a>
+                            </div>
+                            
                             <div class="row align-items-center pt-3">
                                 <div class="col-6">
                                     <a href="{{ route('home') }}" class="link link--style-3">

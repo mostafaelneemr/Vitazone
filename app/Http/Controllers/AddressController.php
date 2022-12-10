@@ -37,7 +37,7 @@ class AddressController extends Controller
             $address->user_id = $request->customer_id;
         } else {
             $address->user_id = Auth::user()->id;
-            if (Auth::user()->phone == null) {
+            if (Auth::user()->phone == null || Auth::user()->address == null) {
                 $user = User::find(Auth::user()->id);
                 $user->phone = $request->phone;
                 $user->address = $request->address;
