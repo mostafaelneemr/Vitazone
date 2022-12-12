@@ -27,6 +27,7 @@ use Session;
 use App\Utility\PayhereUtility;
 use App\Wallet;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class CheckoutController extends Controller
 {
@@ -581,79 +582,92 @@ class CheckoutController extends Controller
 
     public function store_shipping_info(Request $request)
     {
-        if (count($request->all()) > 0) {
-            if (Auth::check()) {
-                $products_types = array_column(\App\Product::whereIn('id', array_column(Session::get('cart')->toArray(), 'id'))->select('id', 'light_heavy_shipping')->get()->toArray(), 'light_heavy_shipping');
-                if ($request->address_id == null) {
-                    flash(translate("Please add shipping address"))->warning();
-                    return back();
-                }
+        $this->validate($request, [
+            'name' => 'required|string|min:3',
+            'email' => 'required|email|ends_with:gmail.com,hotmail.com,yahoo.com',
+            'address' => 'required|string',
+            'phone' => ["required","digits:11","regex:/01[0125][0-9]{8}$/","numeric"],
+        ]);
+        try {
 
-                $address = Address::findOrFail($request->address_id);
 
-                if (in_array('heavy', $products_types)) {
-                    $shipping_cost = $address->addressRegion->shipping_cost_high;
-                    $shipping_date = date('d-m-Y', strtotime('+' . $address->addressRegion->shipping_duration_high . ' days'));
+            if (count($request->all()) > 0) {
+                if (Auth::check()) {
+                    $products_types = array_column(\App\Product::whereIn('id', array_column(Session::get('cart')->toArray(), 'id'))->select('id', 'light_heavy_shipping')->get()->toArray(), 'light_heavy_shipping');
+                    if ($request->address_id == null) {
+                        flash(translate("Please add shipping address"))->warning();
+                        return back();
+                    }
+    
+                    $address = Address::findOrFail($request->address_id);
+    
+                    if (in_array('heavy', $products_types)) {
+                        $shipping_cost = $address->addressRegion->shipping_cost_high;
+                        $shipping_date = date('d-m-Y', strtotime('+' . $address->addressRegion->shipping_duration_high . ' days'));
+                    } else {
+                        $shipping_cost = $address->addressRegion->shipping_cost;
+                        $shipping_date = date('d-m-Y', strtotime('+' . $address->addressRegion->shipping_duration . ' days'));
+                    }
+    
+                    $data['name'] = Auth::user()->name;
+                    $data['email'] = Auth::user()->email;
+                    $data['address'] = $address->address;
+                    $data['country'] = $address->country;
+                    $data['city'] = $address->city;
+                    $data['region'] = $address->region;
+                    $data['postal_code'] = $address->postal_code;
+                    $data['phone'] = $address->phone;
+                    $data['checkout_type'] = $request->checkout_type;
+                    // $data['shipping_cost'] = $shipping_cost;
+                    $data['shipping_date'] = $shipping_date;
                 } else {
-                    $shipping_cost = $address->addressRegion->shipping_cost;
-                    $shipping_date = date('d-m-Y', strtotime('+' . $address->addressRegion->shipping_duration . ' days'));
+                    $data['name'] = $request->name;
+                    $data['email'] = $request->email;
+                    $data['address'] = $request->address;
+                    $data['country'] = $request->country;
+                    $data['city'] = $request->city;
+                    $data['region'] = $request->region;
+                    $data['postal_code'] = $request->postal_code;
+                    $data['phone'] = $request->phone;
+                    $data['checkout_type'] = $request->checkout_type;
+                    // $data['shipping_cost'] = 0;
+                    $data['shipping_date'] = date('d-m-Y');
                 }
-
-                $data['name'] = Auth::user()->name;
-                $data['email'] = Auth::user()->email;
-                $data['address'] = $address->address;
-                $data['country'] = $address->country;
-                $data['city'] = $address->city;
-                $data['region'] = $address->region;
-                $data['postal_code'] = $address->postal_code;
-                $data['phone'] = $address->phone;
-                $data['checkout_type'] = $request->checkout_type;
-                // $data['shipping_cost'] = $shipping_cost;
-                $data['shipping_date'] = $shipping_date;
-            } else {
-                $data['name'] = $request->name;
-                $data['email'] = $request->email;
-                $data['address'] = $request->address;
-                $data['country'] = $request->country;
-                $data['city'] = $request->city;
-                $data['region'] = $request->region;
-                $data['postal_code'] = $request->postal_code;
-                $data['phone'] = $request->phone;
-                $data['checkout_type'] = $request->checkout_type;
-                // $data['shipping_cost'] = 0;
-                $data['shipping_date'] = date('d-m-Y');
+    
+    
+                $shipping_info = $data;
+                $request->session()->put('shipping_info', $shipping_info);
+    
+                $subtotal = 0;
+                $tax = 0;
+                $shipping = 0;
+                foreach (Session::get('cart') as $key => $cartItem) {
+                    $subtotal += $cartItem['price'] * $cartItem['quantity'];
+                    $tax += $cartItem['tax'] * $cartItem['quantity'];
+                    $shipping += $cartItem['shipping'];
+                }
+                // return date('d-m-Y',strtotime('+2 days'));
+                $cart = $request->session()->get('cart', collect([]));
+                $cart = $cart->map(function ($object, $key) use ($request, $data) {
+                    $object['shipping'] = getShippingCost($key);
+                    $object['shipping_date'] = $data['shipping_date'];
+                    return $object;
+                });
+    
+                $request->session()->put('cart', $cart);
+                $total = $subtotal + $tax + $shipping;
+    
+                if (Session::has('coupon_discount')) {
+                    $total -= Session::get('coupon_discount');
+                }
             }
-
-
-            $shipping_info = $data;
-            $request->session()->put('shipping_info', $shipping_info);
-
-            $subtotal = 0;
-            $tax = 0;
-            $shipping = 0;
-            foreach (Session::get('cart') as $key => $cartItem) {
-                $subtotal += $cartItem['price'] * $cartItem['quantity'];
-                $tax += $cartItem['tax'] * $cartItem['quantity'];
-                $shipping += $cartItem['shipping'];
-            }
-            // return date('d-m-Y',strtotime('+2 days'));
-            $cart = $request->session()->get('cart', collect([]));
-            $cart = $cart->map(function ($object, $key) use ($request, $data) {
-                $object['shipping'] = getShippingCost($key);
-                $object['shipping_date'] = $data['shipping_date'];
-                return $object;
-            });
-
-            $request->session()->put('cart', $cart);
-            $total = $subtotal + $tax + $shipping;
-
-            if (Session::has('coupon_discount')) {
-                $total -= Session::get('coupon_discount');
-            }
+    
+    
+            return view('frontend.delivery_info');
+        } catch (\Exception $e) {
+            // flash();
+            return redirect()->back()->withErrors(['errors' => $e->getMessage()]);
         }
-
-
-        return view('frontend.delivery_info');
     }
 
     public function store_delivery_info(Request $request)

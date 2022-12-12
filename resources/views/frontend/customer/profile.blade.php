@@ -63,6 +63,7 @@
                         </div>
 
                         @include('frontend.message')
+
                         <form class="" action="{{ route('customer.profile.update') }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
@@ -93,7 +94,7 @@
                                             <label>{{ translate('Your Phone') }}</label>
                                         </div>
                                         <div class="col-md-10">
-                                            <input type="text" class="form-control mb-3"
+                                            <input type="number" class="form-control mb-3"
                                                 placeholder="{{ translate('Your Phone') }}" name="phone" readonly
                                                 value="{{ Auth::user()->phone }}">
                                         </div>

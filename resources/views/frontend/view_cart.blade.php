@@ -78,6 +78,8 @@
             @if (Session::has('cart'))
                 <div class="row cols-xs-space cols-sm-space cols-md-space">
                     <div class="col-xl-8">
+
+                        @include('frontend.message')
                         <form class="form-default" data-toggle="validator"
                             action="{{ route('checkout.store_shipping_infostore') }}" role="form" method="POST">
 
@@ -123,13 +125,11 @@
                                                         </td>
 
                                                         <td class="product-name">
-                                                            <span
-                                                                class="pr-4 d-block">{{ $product_name_with_choice }}</span>
+                                                            <span class="pr-4 d-block">{{ $product_name_with_choice }}</span>
                                                         </td>
 
                                                         <td class="product-price d-none d-lg-table-cell">
-                                                            <span
-                                                                class="pr-3 d-block">{{ single_price($cartItem['price']) }}</span>
+                                                            <span class="pr-3 d-block">{{ single_price($cartItem['price']) }}</span>
                                                         </td>
 
                                                         <td class="product-quantity d-none d-md-table-cell">
@@ -191,48 +191,36 @@
                                                                         class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                                                     <span class="flex-grow-1 pl-3">
                                                                         <div>
-                                                                            <span
-                                                                                class="alpha-6">{{ translate('Address') }}:</span>
-                                                                            <span
-                                                                                class="strong-600 ml-2">{{ $address->address }}</span>
+                                                                            <span class="alpha-6">{{ translate('Address') }}:</span>
+                                                                            <span class="strong-600 ml-2">{{ $address->address }}</span>
                                                                         </div>
                                                                         @if ($address->addressRegion)
                                                                             <div>
-                                                                                <span
-                                                                                    class="alpha-6">{{ translate('Region') }}:</span>
-                                                                                <span
-                                                                                    class="strong-600 ml-2">{{ $address->addressRegion->{'name_' . locale()} }}</span>
+                                                                                <span class="alpha-6">{{ translate('Region') }}:</span>
+                                                                                <span class="strong-600 ml-2">{{ $address->addressRegion->{'name_' . locale()} }}</span>
                                                                             </div>
                                                                         @endif
                                                                         @if ($address->addressCity)
                                                                             <div>
-                                                                                <span
-                                                                                    class="alpha-6">{{ translate('City') }}:</span>
-                                                                                <span
-                                                                                    class="strong-600 ml-2">{{ $address->addressCity->{'name_' . locale()} }}</span>
+                                                                                <span class="alpha-6">{{ translate('City') }}:</span>
+                                                                                <span class="strong-600 ml-2">{{ $address->addressCity->{'name_' . locale()} }}</span>
                                                                             </div>
                                                                         @endif
 
                                                                         @if ($address->addressProvince)
                                                                             <div>
-                                                                                <span
-                                                                                    class="alpha-6">{{ translate('Province') }}:</span>
-                                                                                <span
-                                                                                    class="strong-600 ml-2">{{ $address->addressProvince->{'name_' . locale()} }}</span>
+                                                                                <span class="alpha-6">{{ translate('Province') }}:</span>
+                                                                                <span class="strong-600 ml-2">{{ $address->addressProvince->{'name_' . locale()} }}</span>
                                                                             </div>
                                                                         @endif
 
                                                                         <div>
-                                                                            <span
-                                                                                class="alpha-6">{{ translate('Country') }}:</span>
-                                                                            <span
-                                                                                class="strong-600 ml-2">{{ $address->addressCountry->{'name_' . locale()} }}</span>
+                                                                            <span class="alpha-6">{{ translate('Country') }}:</span>
+                                                                            <span class="strong-600 ml-2">{{ $address->addressCountry->{'name_' . locale()} }}</span>
                                                                         </div>
                                                                         <div>
-                                                                            <span
-                                                                                class="alpha-6">{{ translate('Phone') }}:</span>
-                                                                            <span
-                                                                                class="strong-600 ml-2">{{ $address->phone }}</span>
+                                                                            <span class="alpha-6">{{ translate('Phone') }}:</span>
+                                                                            <span class="strong-600 ml-2">{{ $address->phone }}</span>
                                                                         </div>
                                                                     </span>
                                                                 </span>
@@ -240,12 +228,10 @@
                                                             </div>
                                                         @endforeach
 
-                                                        @include('frontend.message')
                                                         
                                                         <input type="hidden" name="checkout_type" value="logged">
                                                         <div class="col-md-6 mx-auto" onclick="add_new_address()">
-                                                            <div
-                                                                class="border p-3 rounded mb-3 c-pointer text-center bg-white">
+                                                            <div class="border p-3 rounded mb-3 c-pointer text-center bg-white">
                                                                 <i class="la la-plus la-2x"></i>
                                                                 <div class="alpha-7">{{ translate('Add New Address') }}
                                                                 </div>
@@ -259,10 +245,11 @@
                                                                 <div class="row">
                                                                     <div class="col-md-12">
                                                                         <div class="form-group">
-                                                                            <label
-                                                                                class="control-label">{{ translate('Name') }}</label>
-                                                                            <input type="text" class="form-control" name="name"
-                                                                                placeholder="{{ translate('Name') }}" required>
+                                                                            <label class="control-label">{{ translate('Name') }}</label>
+                                                                            <input type="text" class="form-control" name="name" placeholder="{{ translate('Name') }}" required>
+                                                                            @error('name')
+                                                                            <div class="alert alert-danger">{{ $message }}</div>
+                                                                            @enderror
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -270,10 +257,11 @@
                                                                 <div class="row">
                                                                     <div class="col-md-12">
                                                                         <div class="form-group">
-                                                                            <label
-                                                                                class="control-label">{{ translate('Email') }}</label>
-                                                                            <input type="text" class="form-control" name="email"
-                                                                                placeholder="{{ translate('Email') }}" required>
+                                                                            <label class="control-label">{{ translate('Email') }}</label>
+                                                                            <input type="email" class="form-control" name="email" placeholder="{{ translate('Email') }}" required>
+                                                                            @error('email')
+                                                                            <div class="alert alert-danger">{{ $message }}</div>
+                                                                            @enderror
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -281,12 +269,11 @@
                                                                 <div class="row">
                                                                     <div class="col-md-12">
                                                                         <div class="form-group">
-                                                                            <label
-                                                                                class="control-label">{{ translate('Address') }}</label>
-                                                                            <input type="text" class="form-control"
-                                                                                name="address"
-                                                                                placeholder="{{ translate('Address') }}"
-                                                                                required>
+                                                                            <label class="control-label">{{ translate('Address') }}</label>
+                                                                            <input type="text" class="form-control" name="address" placeholder="{{ translate('Address') }}" required>
+                                                                            @error('address')
+                                                                            <div class="alert alert-danger">{{ $message }}</div>
+                                                                            @enderror
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -294,8 +281,7 @@
                                                                 <div class="row">
                                                                     <div class="col-md-6">
                                                                         <div class="form-group">
-                                                                            <label
-                                                                                class="control-label">{{ translate('Select your country') }}</label>
+                                                                            <label class="control-label">{{ translate('Select your country') }}</label>
                                                                             <select class="form-control custome-control"
                                                                                 onchange="get_provinces(this)"
                                                                                 data-placeholder="{{ translate('Select your country') }}"
@@ -313,9 +299,7 @@
                                                                         <label>{{ translate('Provinces') }}</label>
                                                                     
                                                                         <select class="form-control mb-3 selectpicker" onchange="get_cities(this)"
-                                                                            data-placeholder="{{ translate('Your Province') }}" id="Province_select"
-                                                                            name="province" required>
-                            
+                                                                            data-placeholder="{{ translate('Your Province') }}" id="Province_select" name="province" required>
                                                                         </select>
                                                                     </div>
                                                                     
@@ -323,34 +307,26 @@
                                                                 <div class="row">
                                                                     <div class="col-md-6">
                                                                         <div class="form-group has-feedback">
-                                                                            <label
-                                                                                class="control-label">{{ translate('City') }}</label>
+                                                                            <label class="control-label">{{ translate('City') }}</label>
                                                                             <select class="form-control mb-3 selectpicker"
-                                                                                onchange="get_regions(this)"
-                                                                                data-placeholder="{{ translate('Your City') }}"
-                                                                                id="city_select" name="city" required>
-
+                                                                                onchange="get_regions(this)" data-placeholder="{{ translate('Your City') }}" id="city_select" name="city" required>
                                                                             </select>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-md-6">
-                                                                        <label
-                                                                            class="control-label">{{ translate('Region') }}</label>
-                                                                        <select class="form-control mb-3 selectpicker"
-                                                                            data-placeholder="{{ translate('Select Your Region') }}"
-                                                                            id="region_select" name="region" required>
-
+                                                                        <label class="control-label">{{ translate('Region') }}</label>
+                                                                        <select class="form-control mb-3 selectpicker" data-placeholder="{{ translate('Select Your Region') }}" id="region_select" name="region" required>
                                                                         </select>
                                                                     </div>
                                                                 </div>
                                                                 <div class="row">
                                                                     <div class="col-md-12">
                                                                         <div class="form-group has-feedback">
-                                                                            <label
-                                                                                class="control-label">{{ translate('Phone') }}</label>
-                                                                            <input type="number" min="0" class="form-control"
-                                                                                placeholder="{{ translate('Phone') }}"
-                                                                                name="phone" required>
+                                                                            <label class="control-label">{{ translate('Phone') }}</label>
+                                                                            <input type="number" min="0" class="form-control" placeholder="{{ translate('Phone') }}" name="phone" required>
+                                                                            @error('phone')
+                                                                            <div class="alert alert-danger">{{ $message }}</div>
+                                                                            @enderror
                                                                         </div>
                                                                     </div>
                                                                 </div>

@@ -1611,7 +1611,10 @@ if (!function_exists('payWithPaymob')) {
             
             $user = $order->user->name;
             $name = explode(' ',$user);
-            $lastname = $name[0];
+            // // var_dump($name);die;
+            // echo array_key_last($name);die;
+            $firstname = $name[0];
+            $lastname = end($name);
             
             $response_final_final = Http::withHeaders(
                 ['content-type' => 'application/json']
@@ -1626,7 +1629,7 @@ if (!function_exists('payWithPaymob')) {
                         "apartment" => "NA", 
                         "email" => ($order->user) ? $order->user->email : Session::get('shipping_info')['email'],
                         "floor" => "NA",
-                        "first_name" => ($order->user) ? $order->user->name : Session::get('shipping_info')['name'],
+                        "first_name" => ($order->user) ? $firstname : Session::get('shipping_info')['name'],
                         "street" =>  Session::get('shipping_info')['address'],
                         "building" => "NA",
                         "phone_number" => ($order->user) ? $order->user->phone : Session::get('shipping_info')['phone'],
